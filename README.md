@@ -53,6 +53,164 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 ### 8.1 Front-End
 **HTML/Tailwinds/JavaScript/React.JS**
 ### 8.2 Back-End
-**PHP/Laravel/Inertia/MySQL**
+**PHP/Laravel/Inertia/PostgresSQL**
 
-## 🎲 Plano de Dados
+## 🎲 9 - Plano de Dados
+### 9.1 Entidades
+- Usuários: Pessoa que utiliza o sistema (usuário comum/administrador), autentica-se e pode cadastrar ou ver áreas esportivas.
+- Áreas Esportivas: Locais na cidade com áreas esportivas.
+- Comentários: Comentários de usuários comuns nas áreas esportivas.
+- Imagens área: Imagens contidas nas áreas esportivas.
+
+### 9.2 Campos por entidade
+Usuário
+| Campo      | Tipo         | Obrigatório | Descrição                        |
+|------------|--------------|-------------|----------------------------------|
+| id         | SERIAL (PK)  | sim         | Identificador único               |
+| nome       | VARCHAR(255) | sim         | Nome do usuário                  |
+| email      | VARCHAR(255) | sim (único) | E-mail do usuário                |
+| senha      | VARCHAR(255) | sim         | Hash da senha                    |
+| perfil     | SMALLINT     | sim         | 0 = comum, 1 = admin             |
+| documento  | VARCHAR(50)  | não         | CPF ou CNPJ                      |
+| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)    |
+| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW) |
+
+
+Áreas esportivas
+| Campo           | Tipo         | Obrigatório | Descrição                              |
+|-----------------|--------------|-------------|----------------------------------------|
+| id              | SERIAL (PK)  | sim         | Identificador da área esportiva        |
+| id_administrador| INT (FK)     | sim         | Relaciona-se a usuarios.id             |
+| titulo          | VARCHAR(255) | sim         | Nome/título da área                    |
+| descricao       | VARCHAR(500) | não         | Descrição da área                      |
+| endereco        | VARCHAR(255) | não         | Endereço                               |
+| cep             | VARCHAR(20)  | não         | CEP da área                            |
+| nota            | SMALLINT     | não         | Avaliação (0 a 5)                      |
+| created_at      | TIMESTAMP    | sim         | Data de criação (default NOW)          |
+| updated_at      | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+
+
+Comentários
+| Campo      | Tipo         | Obrigatório | Descrição                             |
+|------------|--------------|-------------|---------------------------------------|
+| id         | SERIAL (PK)  | sim         | Identificador do comentário            |
+| id_usuario | INT (FK)     | sim         | Relaciona-se a usuarios.id             |
+| id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
+| titulo     | VARCHAR(255) | não         | Título do comentário                   |
+| texto      | VARCHAR(500) | não         | Texto do comentário                    |
+| nota       | SMALLINT     | não         | Avaliação atribuída                    |
+| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)          |
+| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+
+Imagens das áreas
+| Campo      | Tipo         | Obrigatório | Descrição                             |
+|------------|--------------|-------------|---------------------------------------|
+| id         | SERIAL (PK)  | sim         | Identificador da imagem                |
+| id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
+| caminho    | VARCHAR(500) | sim         | Caminho/URL da imagem                  |
+| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)          |
+| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+
+## 9.4 Modelagem banco de dados POSTGRES
+```
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    perfil SMALLINT NOT NULL, -- 'comum = 0' ou 'admin = 1'
+    documento VARCHAR(50), 
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE areas_esportivas (
+    id SERIAL PRIMARY KEY,
+    id_administrador INT NOT NULL REFERENCES usuarios(id),
+    titulo VARCHAR(255) NOT NULL,
+    descricao VARCHAR(500),
+    endereco VARCHAR(255),
+    cep VARCHAR(20),
+    nota SMALLINT, -- de 0 a 5
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE comentarios (
+    id SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL REFERENCES usuarios(id),
+    id_area INT NOT NULL REFERENCES areas_esportivas(id),
+    titulo VARCHAR(255),
+    texto VARCHAR(500),
+    nota SMALLINT,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE imagens_area (
+    id SERIAL PRIMARY KEY,
+    id_area INT NOT NULL REFERENCES areas_esportivas(id),
+    caminho VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+
+-- Inserindo usuários
+INSERT INTO usuarios (nome, email, senha, perfil, documento)
+VALUES
+('Miguel Silva', 'miguel@email.com', '123456', 1, '12345678900'),
+('Ana Souza', 'ana@email.com', 'abcdef', 0, '98765432100'),
+('Carlos Pereira', 'carlos@email.com', 'pass123', 0, '11223344556');
+
+-- Inserindo áreas esportivas
+INSERT INTO areas_esportivas (id_administrador, titulo, descricao, endereco, cep, nota)
+VALUES
+(1, 'Academia Alpha', 'Academia completa com musculação e crossfit', 'Rua A, 123', '12345-678', 5),
+(1, 'Quadra Beta', 'Quadra poliesportiva coberta', 'Rua B, 456', '23456-789', 4),
+(1, 'Piscina Gamma', 'Piscina olímpica e aquecimento', 'Rua C, 789', '34567-890', 5);
+
+-- Inserindo comentários
+INSERT INTO comentarios (id_usuario, id_area, titulo, texto, nota)
+VALUES
+(2, 1, 'Excelente Academia', 'Gostei muito da estrutura e dos professores', 5),
+(3, 1, 'Bom Atendimento', 'A equipe foi prestativa, mas os equipamentos poderiam ser mais modernos', 4),
+(2, 2, 'Ótima Quadra', 'Ideal para jogos de vôlei e futsal', 5);
+
+-- Inserindo imagens
+INSERT INTO imagens_area (id_area, caminho)
+VALUES
+(1, '/imagens/alpha1.jpg'),
+(1, '/imagens/alpha2.jpg'),
+(2, '/imagens/beta1.jpg');
+
+SELECT a.id, a.titulo, u.nome AS administrador
+FROM areas_esportivas a
+JOIN usuarios u ON a.id_administrador = u.id;
+
+
+SELECT c.titulo, c.texto, c.nota, u.nome AS usuario
+FROM comentarios c
+JOIN usuarios u ON c.id_usuario = u.id
+WHERE c.id_area = 1;
+
+
+SELECT titulo, descricao, nota
+FROM areas_esportivas
+WHERE nota >= 5;
+
+
+SELECT a.titulo AS area, i.caminho AS imagem
+FROM imagens_area i
+JOIN areas_esportivas a ON i.id_area = a.id;
+
+
+SELECT a.titulo, COUNT(c.id) AS total_comentarios
+FROM areas_esportivas a
+LEFT JOIN comentarios c ON a.id = c.id_area
+GROUP BY a.titulo;
+
+```
+
+
+
