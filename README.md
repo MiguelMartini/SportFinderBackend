@@ -84,6 +84,7 @@ Usuário
 | titulo          | VARCHAR(255) | sim         | Nome/título da área                    |
 | descricao       | VARCHAR(500) | não         | Descrição da área                      |
 | endereco        | VARCHAR(255) | não         | Endereço                               |
+| cidade          | VARCHAR(80)  | não         | cidade                                 |
 | cep             | VARCHAR(20)  | não         | CEP da área                            |
 | nota            | SMALLINT     | não         | Avaliação (0 a 5)                      |
 | created_at      | TIMESTAMP    | sim         | Data de criação (default NOW)          |
@@ -130,6 +131,7 @@ CREATE TABLE areas_esportivas (
     titulo VARCHAR(255) NOT NULL,
     descricao VARCHAR(500),
     endereco VARCHAR(255),
+    cidade VARCHAR(80),
     cep VARCHAR(20),
     nota SMALLINT, -- de 0 a 5
     created_at TIMESTAMP DEFAULT NOW() NOT NULL,
