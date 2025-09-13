@@ -212,6 +212,9 @@ FROM areas_esportivas a
 LEFT JOIN comentarios c ON a.id = c.id_area
 GROUP BY a.titulo;
 
+SELECT ROUND(AVG(nota),1) FROM comentarios
+
+
 ```
 
 
