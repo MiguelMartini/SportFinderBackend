@@ -53,7 +53,7 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 ### 8.1 Front-End
 **HTML/Tailwinds/JavaScript/React.JS**
 ### 8.2 Back-End
-**PHP/Laravel/Inertia/PostgresSQL**
+**PHP/Laravel/Inertia/MYSQL**
 
 ## 🎲 9 - Plano de Dados
 ### 9.1 Entidades
@@ -66,53 +66,53 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 Usuário
 | Campo      | Tipo         | Obrigatório | Descrição                        |
 |------------|--------------|-------------|----------------------------------|
-| id         | SERIAL (PK)  | sim         | Identificador único               |
+| id         | INT (PK)     | sim         | Identificador único              |
 | nome       | VARCHAR(255) | sim         | Nome do usuário                  |
 | email      | VARCHAR(255) | sim (único) | E-mail do usuário                |
 | senha      | VARCHAR(255) | sim         | Hash da senha                    |
-| perfil     | SMALLINT     | sim         | 0 = comum, 1 = admin             |
+| perfil     | TINYINT      | sim         | 0 = comum, 1 = admin             |
 | documento  | VARCHAR(50)  | não         | CPF ou CNPJ                      |
-| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)    |
-| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW) |
+| created_at | DATETIME     | sim         | Data de criação (default NOW)    |
+| updated_at | DATETIME     | sim         | Última atualização (default NOW) |
 
 
 Áreas esportivas
 | Campo           | Tipo         | Obrigatório | Descrição                              |
 |-----------------|--------------|-------------|----------------------------------------|
-| id              | SERIAL (PK)  | sim         | Identificador da área esportiva        |
+| id              | INT (PK)     | sim         | Identificador da área esportiva        |
 | id_administrador| INT (FK)     | sim         | Relaciona-se a usuarios.id             |
 | titulo          | VARCHAR(255) | sim         | Nome/título da área                    |
 | descricao       | VARCHAR(500) | não         | Descrição da área                      |
 | endereco        | VARCHAR(255) | não         | Endereço                               |
 | cidade          | VARCHAR(80)  | não         | cidade                                 |
 | cep             | VARCHAR(20)  | não         | CEP da área                            |
-| nota            | SMALLINT     | não         | Avaliação (0 a 5)                      |
-| created_at      | TIMESTAMP    | sim         | Data de criação (default NOW)          |
-| updated_at      | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+| nota            | TINYINT      | não         | Avaliação (0 a 5)                      |
+| created_at      | DATETIME     | sim         | Data de criação (default NOW)          |
+| updated_at      | DATETIME     | sim         | Última atualização (default NOW)       |
 
 
 Comentários
 | Campo      | Tipo         | Obrigatório | Descrição                             |
 |------------|--------------|-------------|---------------------------------------|
-| id         | SERIAL (PK)  | sim         | Identificador do comentário            |
+| id         | INT (PK)     | sim         | Identificador do comentário            |
 | id_usuario | INT (FK)     | sim         | Relaciona-se a usuarios.id             |
 | id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
 | titulo     | VARCHAR(255) | não         | Título do comentário                   |
 | texto      | VARCHAR(500) | não         | Texto do comentário                    |
-| nota       | SMALLINT     | não         | Avaliação atribuída                    |
-| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)          |
-| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+| nota       | TINYINT      | não         | Avaliação atribuída                    |
+| created_at | DATETIME     | sim         | Data de criação (default NOW)          |
+| updated_at | DATETIME     | sim         | Última atualização (default NOW)       |
 
 Imagens das áreas
 | Campo      | Tipo         | Obrigatório | Descrição                             |
 |------------|--------------|-------------|---------------------------------------|
-| id         | SERIAL (PK)  | sim         | Identificador da imagem                |
+| id         | INT (PK)     | sim         | Identificador da imagem                |
 | id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
 | caminho    | VARCHAR(500) | sim         | Caminho/URL da imagem                  |
-| created_at | TIMESTAMP    | sim         | Data de criação (default NOW)          |
-| updated_at | TIMESTAMP    | sim         | Última atualização (default NOW)       |
+| created_at | DATETIME     | sim         | Data de criação (default NOW)          |
+| updated_at | DATETIME     | sim         | Última atualização (default NOW)       |
 
-## 9.4 Modelagem banco de dados POSTGRES
+## 9.4 Modelagem banco de dados MYSQL
 ```
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
