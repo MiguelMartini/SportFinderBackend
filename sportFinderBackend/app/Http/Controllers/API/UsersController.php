@@ -87,7 +87,36 @@ class UsersController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = Validator::make($request->all(), [
+            'name'=> 'sometimes',
+            'email' => 'sometimes',
+            'password'=> 'required',
+            'password_confirmation'=> 'required',
+            'perfil'=> 'sometimes',
+            'document'=> 'nullable'
+        ]);
+
+        if($validated->fails()){
+            return response()->json([
+                "status" => "Falha",
+                'message' => $validated->errors()
+            ], 400);
+        }
+
+        $user = User::find($id);
+
+        if(!$user){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Usuário não encntrado'
+            ], 404);
+        }
+
+        $user->update($validated->validated());
+        return response()->json([
+            'status'=> 'Sucesso',
+            'message'=> 'Usuário editado com sucesso'
+        ], 201);
     }
 
     /**
