@@ -44,7 +44,6 @@ class AuthController extends Controller
     }
 
     public function login (Request $request){
-        // dd(vars: $request);
         $validator = Validator::make($request->all(), [
             'email' => 'email',
             'password' => 'required|string'
@@ -60,7 +59,7 @@ class AuthController extends Controller
      
         if(Auth::attempt(['email'=>$request->email, 'password'=>$request->password])){
             $user = Auth::user();
-            // $user->tokens()->delete();
+            $user->tokens()->delete();
 
             $response['token'] = $user->createToken('APIToken')->plainTextToken;
             $response['email'] = $user->email;
