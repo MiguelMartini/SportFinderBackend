@@ -124,6 +124,19 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find($id);
+
+        if(!$user){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Usuário não encontrado'
+            ], 404);
+        }
+
+        $user->delete();
+        return response()->json([
+            'status'=> 'Sucesso',
+            'message'=> 'Usuário deletado com sucesso!'
+        ], 200);
     }
 }
