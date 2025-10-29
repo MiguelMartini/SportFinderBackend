@@ -39,7 +39,7 @@ class UsersController extends Controller
             'email' => 'sometimes',
             'password'=> 'required',
             'password_confirmation'=> 'required',
-            'perfil'=> 'sometimes',
+            'role'=> 'sometimes',
             'document'=> 'nullable'
         ]);
 
