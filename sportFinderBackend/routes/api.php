@@ -19,5 +19,11 @@ Route::middleware(['auth:sanctum'])->group(function(){
 
     // areas esportivas
     Route::get('areas', [AreasEsportivasController::class, 'index']);
-    Route::post('areas', [AreasEsportivasController::class, 'store'])->middleware('role:admin');
+    Route::get('areas/{id}', [AreasEsportivasController::class, 'show']);
+
+    Route::middleware(['role:admin'])->group(function(){
+        Route::post('areas', [AreasEsportivasController::class, 'store']);
+        Route::delete('areas/{id}', [AreasEsportivasController::class, 'destroy']);
+        Route::patch('areas/edit/{id}', [AreasEsportivasController::class, 'update']);
+    });
 });
