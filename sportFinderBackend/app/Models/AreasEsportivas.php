@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class AreasEsportivas extends Model
 {
     protected $fillable = [
-        'id_administrador',
-        'titulo',
-        'descricao',
-        'cidade',
-        'cep',
-        'nota'
-    ];
+    'id_administrador',
+    'titulo',
+    'descricao',
+    'endereco',
+    'cidade',
+    'cep',
+    'nota'
+];
         
 }
