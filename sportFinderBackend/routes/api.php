@@ -25,5 +25,6 @@ Route::middleware(['auth:sanctum'])->group(function(){
         Route::post('areas', [AreasEsportivasController::class, 'store']);
         Route::delete('areas/{id}', [AreasEsportivasController::class, 'destroy']);
         Route::patch('areas/edit/{id}', [AreasEsportivasController::class, 'update']);
+        
     });
 });

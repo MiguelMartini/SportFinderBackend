@@ -10,4 +10,9 @@ class ImagensAreas extends Model
         'id_area',
         'thumbnail'
     ];
+
+    public function areaEsportiva()
+    {
+        return $this->belongsTo(ImagensAreas::class, 'id_area');
+    }
 }

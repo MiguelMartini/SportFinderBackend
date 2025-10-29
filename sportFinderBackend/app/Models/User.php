@@ -48,4 +48,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function areasEsportivas()
+    {
+        return $this->hasMany(AreasEsportivas::class, 'id_administrador');
+    }
 }
