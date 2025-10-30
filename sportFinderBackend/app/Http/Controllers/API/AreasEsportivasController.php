@@ -4,8 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\AreasEsportivas;
+use App\Models\ImagensAreas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AreasEsportivasController extends Controller
@@ -15,7 +17,7 @@ class AreasEsportivasController extends Controller
      */
     public function index()
     {
-        $areas = AreasEsportivas::get();
+        $areas = AreasEsportivas::with('imagens')->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -35,6 +37,8 @@ class AreasEsportivasController extends Controller
             'cidade' => 'required|string|max:80',
             'cep' => 'required|string|max:20',
             'nota' => 'sometimes|nullable|numeric',
+
+            'thumbnail' => 'nullable|image|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -43,7 +47,6 @@ class AreasEsportivasController extends Controller
                 'message' => $validator->errors()
             ], 400);
         }
-
         $data['id_administrador'] = $request->id_administrador;
         $data['titulo'] = $request->titulo;
         $data['descricao'] = $request->descricao;
@@ -52,13 +55,30 @@ class AreasEsportivasController extends Controller
         $data['cep'] = $request->cep;
         $data['nota'] = $request->nota;
 
+        $area = AreasEsportivas::create($data);
 
+        $imagemPath = null;
 
-        AreasEsportivas::create($data);
+        if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
+            //     $file = $request->file('thumbnail');
+            //     $fileName = time().'_'.$file->getClientOriginalName();
+
+            //     $file->move(public_path('storage/imagens'), $fileName);
+
+            //     $imagemPath = "storage/imagens/".$fileName;
+
+            //     $area->imagens()->create([
+            //     'thumbnail' => $imagemPath
+
+            // ]);
+            $path = $request->file('thumbnail')->store('imagens', 'public');
+            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
+        }
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => 'Area esportiva criada com sucesso'
+            'message' => 'Area esportiva criada com sucesso',
+            'area' => $area->load('imagens')
         ]);
     }
 
@@ -69,16 +89,16 @@ class AreasEsportivasController extends Controller
     {
         $area = AreasEsportivas::find($id);
 
-        if(!$area){
+        if (!$area) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Área Esportiva não encontrada'
-            ],404);
+            ], 404);
         }
         return response()->json([
             'status' => 'Sucesso',
             'message' => $area
-        ],200);
+        ], 200);
     }
 
     /**
@@ -96,7 +116,7 @@ class AreasEsportivasController extends Controller
             'nota' => 'sometimes|nullable|numeric',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => $validator->errors()
@@ -105,7 +125,7 @@ class AreasEsportivasController extends Controller
 
         $area = AreasEsportivas::find($id);
 
-        if(!$area){
+        if (!$area) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Área Esportiva não encontrada'
@@ -116,9 +136,9 @@ class AreasEsportivasController extends Controller
 
         return response()->json([
             'status' => 'Suceeso',
-            'message'=> 'Área esportiva atualizada com sucesso',
+            'message' => 'Área esportiva atualizada com sucesso',
             'Area' => $area->titulo
-        ],200);
+        ], 200);
     }
 
     /**
@@ -128,7 +148,7 @@ class AreasEsportivasController extends Controller
     {
         $areas = AreasEsportivas::find($id);
 
-        if(!$areas){
+        if (!$areas) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Área esportiva não encontrada'

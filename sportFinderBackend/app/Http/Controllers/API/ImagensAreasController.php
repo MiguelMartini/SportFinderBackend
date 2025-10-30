@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImagensAreas;
 use Illuminate\Http\Request;
 
 class ImagensAreasController extends Controller
@@ -12,7 +13,11 @@ class ImagensAreasController extends Controller
      */
     public function index()
     {
-        //
+        $imagens = ImagensAreas::get();
+        return response()->json([
+            'status' => 'Sucesso',
+            'message' => $imagens
+        ],200);
     }
 
     /**

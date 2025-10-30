@@ -13,6 +13,6 @@ class ImagensAreas extends Model
 
     public function areaEsportiva()
     {
-        return $this->belongsTo(ImagensAreas::class, 'id_area');
+        return $this->belongsTo(AreasEsportivas::class, 'id_area');
     }
 }

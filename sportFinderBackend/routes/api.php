@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AreasEsportivasController;
+use App\Http\Controllers\API\ImagensAreasController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Middleware\ValidToken;
@@ -20,6 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
     // areas esportivas
     Route::get('areas', [AreasEsportivasController::class, 'index']);
     Route::get('areas/{id}', [AreasEsportivasController::class, 'show']);
+    Route::get('imagens', [ImagensAreasController::class, 'index']);
 
     Route::middleware(['role:admin'])->group(function(){
         Route::post('areas', [AreasEsportivasController::class, 'store']);
