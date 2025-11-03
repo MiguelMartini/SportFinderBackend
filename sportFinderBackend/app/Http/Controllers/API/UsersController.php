@@ -5,45 +5,58 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function show(string $id)
     {
-        $user = User::get();
+        $user = Auth::user();
+
+        if(!$user){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Usuário não autenticado'
+            ], 401);
+        }
+
+        if ((int)$user->id !== (int) $id) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
 
         return response()->json([
             'status' => 'Sucesso',
-            'Usuários'=> count($user),
-            'message' => $user
+            'message' => $user->only(["name", "email", "role", "documento"])
         ], 200);
-    }
-    public function create()
-    {
-        //
-    }
-    public function show(string $id)
-    {
-        //
-    }
-    public function edit(string $id)
-    {
-        //
     }
 
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+
+        if ((int)$user->id !== (int) $id) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
+
         $validated = Validator::make($request->all(), [
-            'name'=> 'sometimes',
+            'name' => 'sometimes',
             'email' => 'sometimes',
-            'password'=> 'required',
-            'password_confirmation'=> 'required',
-            'role'=> 'sometimes',
-            'document'=> 'nullable'
+            'password' => 'required|confirmed',
+            'role' => 'sometimes',
+            'documento' => 'nullable'
+        ],[
+            'password.required' => 'Preencha todos os campos obrigatórios',
+            'password.confirmed' => 'As senhas não coincidem'
         ]);
 
-        if($validated->fails()){
+        if ($validated->fails()) {
             return response()->json([
                 "status" => "Falha",
                 'message' => $validated->errors()
@@ -52,7 +65,7 @@ class UsersController extends Controller
 
         $user = User::find($id);
 
-        if(!$user){
+        if (!$user) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Usuário não encntrado'
@@ -61,15 +74,23 @@ class UsersController extends Controller
 
         $user->update($validated->validated());
         return response()->json([
-            'status'=> 'Sucesso',
-            'message'=> 'Usuário editado com sucesso'
+            'status' => 'Sucesso',
+            'message' => 'Usuário editado com sucesso'
         ], 201);
     }
+
     public function destroy(string $id)
     {
-        $user = User::find($id);
+        $user = Auth::user();
 
-        if(!$user){
+        if ((int)$user->id !== (int) $id) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
+
+        if (!$user) {
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Usuário não encontrado'
@@ -78,8 +99,8 @@ class UsersController extends Controller
 
         $user->delete();
         return response()->json([
-            'status'=> 'Sucesso',
-            'message'=> 'Usuário deletado com sucesso!'
+            'status' => 'Sucesso',
+            'message' => 'Usuário deletado com sucesso!'
         ], 200);
     }
 }
