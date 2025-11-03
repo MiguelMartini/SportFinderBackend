@@ -15,12 +15,14 @@ class AuthController extends Controller
         $validated = Validator::make($request->all(), [
             'name'=> 'required',
             'email' => 'required|unique:users,email',
-            'password'=> 'required',
-            'password_confirmation'=> 'required',
-            'perfil'=> 'sometimes',
-            'documento'=> 'nullable'
+            'password'=> 'required|confirmed',
+            'role'=> 'sometimes'
         ], [
+            'name.required' => 'Campo de nome obrigatório',
             'email.unique'=> 'Este endereço de E-mail já foi cadastrado',
+            'email.required' => 'Campo de e-mail obrigatório',
+            'password.confirmed' => 'As senhas não correspondem',
+            'password.required' => 'Campo de senha é obrigatório'
         ]);
 
         if($validated->fails()){
@@ -31,10 +33,8 @@ class AuthController extends Controller
         }
 
         $data = $validated->validated();
-        unset($data['password_confirmation']);
-        $data['perfil'] = $data['perfil'] ?? 'usuario';
+        $data['role'] = $data['role'] ?? 'usuario';
 
-        $data['password'] = Hash::make($data['password']);
         User::create($data);
 
         return response()->json([

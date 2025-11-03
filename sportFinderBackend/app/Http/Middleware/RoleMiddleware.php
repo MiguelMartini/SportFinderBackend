@@ -16,21 +16,29 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
+        $user = Auth::user();
 
-        if(!Auth::check()){
+        if(!$user){
             return response()->json([
                 'status' => 'Falha',
-                'message' => 'Sem autorização'
+                'message' => 'Usuário não autenticado'
             ], 401);
         }
 
-        if(in_array(Auth::user()->role, $roles)){
-            return $next($request);
+        if(!in_array($user->role, $roles)){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Você não esta permitido para acessar esta operação'
+            ],403);
         }
 
-        return response()->json([
-            'status'=> 'fail',
-            'message' => 'Você não esta permitido para acessar esta operação'
-        ], 403);
+        if(empty($user->documento)){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'É necessário possuir um documento (CPF/CNPJ) para realizar esta operação'
+            ],403);
+        }
+        
+        return $next($request);
     }
 }
