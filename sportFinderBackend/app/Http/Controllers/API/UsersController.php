@@ -24,7 +24,7 @@ class UsersController extends Controller
         if ((int)$user->id !== (int) $id) {
             return response()->json([
                 'status' => 'Falha',
-                'message' => 'Sem permissão para esta operação.'
+                'message' => 'Sem permissão para esta operação.',
             ], 203);
         }
 

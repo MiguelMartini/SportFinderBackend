@@ -19,11 +19,12 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::get('users/{id}', [UsersController::class, 'show']); 
 
     // areas esportivas
-    Route::get('areas', [AreasEsportivasController::class, 'index']);
+    Route::get('areas', [AreasEsportivasController::class, 'indexAll']);
     Route::get('areas/{id}', [AreasEsportivasController::class, 'show']);
     Route::get('imagens', [ImagensAreasController::class, 'index']);
 
     Route::middleware(['role:admin'])->group(function(){
+        Route::get('areasadmin', [AreasEsportivasController::class, 'index']);
         Route::post('areas', [AreasEsportivasController::class, 'store']);
         Route::delete('areas/{id}', [AreasEsportivasController::class, 'destroy']);
         Route::patch('areas/edit/{id}', [AreasEsportivasController::class, 'update']);

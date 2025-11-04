@@ -4,20 +4,27 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\AreasEsportivas;
-use App\Models\ImagensAreas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AreasEsportivasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function indexAll()
     {
         $areas = AreasEsportivas::with('imagens')->get();
+
+        return response()->json([
+            'status' => 'Sucesso',
+            'message' => $areas
+        ], 200);
+    }
+    public function index()
+    {
+        $user = Auth::user();
+        $areas = AreasEsportivas::with('imagens')
+        ->where('id_administrador', $user->id)
+        ->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -29,6 +36,22 @@ class AreasEsportivasController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        
+        if(!$user){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Usuário não autenticado'
+            ], 401);
+        }
+
+        if ((int)$user->id !== (int) $request->id_administrador) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
+
         $validator = Validator::make($request->all(), [
             'id_administrador' => 'required|numeric',
             'titulo' => 'required|string',
@@ -87,7 +110,23 @@ class AreasEsportivasController extends Controller
      */
     public function show(string $id)
     {
+
+        $user = Auth::user(); 
         $area = AreasEsportivas::find($id);
+
+        if(!$user){
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Usuário não autenticado'
+            ], 401);
+        }
+
+        if ((int)$user->id !== (int) $area->id_administrador) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
 
         if (!$area) {
             return response()->json([
