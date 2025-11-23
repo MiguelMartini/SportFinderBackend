@@ -12,7 +12,7 @@ class AreasEsportivasController extends Controller
 {
     public function indexAll()
     {
-        $areas = AreasEsportivas::with('imagens')->get();
+        $areas = AreasEsportivas::with(['imagens', 'endereco'])->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -21,10 +21,10 @@ class AreasEsportivasController extends Controller
     }
     public function index()
     {
-        $user = Auth::user();
-        $areas = AreasEsportivas::with('imagens')
-        ->where('id_administrador', $user->id)
-        ->get();
+         $user = Auth::user();
+        $areas = AreasEsportivas::with(['imagens', 'endereco'])
+            ->where('id_administrador', $user->id)
+            ->get();
 
         return response()->json([
             'status' => 'Sucesso',
