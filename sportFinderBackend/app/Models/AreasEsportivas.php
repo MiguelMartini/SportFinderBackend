@@ -28,6 +28,6 @@ class AreasEsportivas extends Model
 
     public function endereco()
     {
-        return $this->hasOne(Endereco::class);
+        return $this->hasOne(Endereco::class, 'area_esportiva_id');
     }
 }

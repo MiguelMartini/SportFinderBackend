@@ -56,10 +56,15 @@ class AreasEsportivasController extends Controller
             'id_administrador' => 'required|numeric',
             'titulo' => 'required|string',
             'descricao' => 'sometimes|nullable|string|max:500',
-            'endereco' => 'required|string',
-            'cidade' => 'required|string|max:80',
-            'cep' => 'required|string|max:20',
             'nota' => 'sometimes|nullable|numeric',
+
+            'rua' => 'required|string',
+            'numero' => 'required|string',
+            'bairro' => 'required|string',
+            'cidade' => 'required|string',
+            'estado' => 'required|string|max:2',
+            'cep' => 'required|string|max:20',
+            'complemento' => 'sometimes|nullable|string',
 
             'thumbnail' => 'nullable|image|max:2048',
         ]);
@@ -70,16 +75,28 @@ class AreasEsportivasController extends Controller
                 'message' => $validator->errors()
             ], 400);
         }
-        $data['id_administrador'] = $request->id_administrador;
-        $data['titulo'] = $request->titulo;
-        $data['descricao'] = $request->descricao;
-        $data['endereco'] = $request->endereco;
-        $data['cidade'] = $request->cidade;
-        $data['cep'] = $request->cep;
-        $data['nota'] = $request->nota;
 
-        $area = AreasEsportivas::create($data);
+         $area = AreasEsportivas::create([
+            'id_administrador' => $request->id_administrador,
+            'titulo' => $request->titulo,
+            'descricao' => $request->descricao,
+            'nota' => $request->nota
+        ]);
 
+        $area->endereco()->create([
+            'rua' => $request->rua,
+            'numero' => $request->numero,
+            'bairro' => $request->bairro,
+            'cidade' => $request->cidade,
+            'estado' => $request->estado,
+            'cep' => $request->cep,
+            'complemento' => $request->complemento,
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('imagens', 'public');
+            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
+        }
         $imagemPath = null;
 
         if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
@@ -94,15 +111,15 @@ class AreasEsportivasController extends Controller
             //     'thumbnail' => $imagemPath
 
             // ]);
-            $path = $request->file('thumbnail')->store('imagens', 'public');
-            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
+            // $path = $request->file('thumbnail')->store('imagens', 'public');
+            // $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
         }
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => 'Area esportiva criada com sucesso',
-            'area' => $area->load('imagens')
-        ]);
+            'message' => 'Área esportiva criada com sucesso',
+            'area' => $area->load(['endereco', 'imagens'])
+        ], 200);
     }
 
     /**

@@ -18,7 +18,7 @@ class Endereco extends Model
     ];
     public function areaEsportiva()
     {
-        return $this->belongsTo(AreasEsportivas::class);
+        return $this->belongsTo(AreasEsportivas::class, 'area_esportiva_id');
     }
 
 }
