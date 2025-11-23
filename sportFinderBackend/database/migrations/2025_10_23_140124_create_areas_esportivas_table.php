@@ -16,9 +16,6 @@ return new class extends Migration
             $table->foreignId('id_administrador')->constrained('users')->onDelete('cascade');
             $table->string('titulo', 255); // título da área
             $table->string('descricao', 500)->nullable(); // descrição opcional
-            $table->string('endereco', 255); // endereço opcional
-            $table->string('cidade', 80); // cidade opcional
-            $table->string('cep', 20); // CEP opcional
             $table->tinyInteger('nota')->nullable()->comment('Avaliação de 0 a 5');
             $table->timestamps();
         });

@@ -10,9 +10,6 @@ class AreasEsportivas extends Model
         'id_administrador',
         'titulo',
         'descricao',
-        'endereco',
-        'cidade',
-        'cep',
         'nota'
     ];
 
