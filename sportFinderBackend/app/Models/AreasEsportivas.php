@@ -25,4 +25,9 @@ class AreasEsportivas extends Model
     {
         return $this->hasMany(ImagensAreas::class, 'id_area');
     }
+
+    public function endereco()
+    {
+        return $this->hasOne(Endereco::class);
+    }
 }
