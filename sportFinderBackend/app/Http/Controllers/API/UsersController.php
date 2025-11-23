@@ -50,10 +50,11 @@ class UsersController extends Controller
             'email' => 'sometimes',
             'password' => 'required|confirmed',
             'role' => 'sometimes',
-            'documento' => 'nullable'
+            'documento' => 'required_if:role,admin'
         ],[
             'password.required' => 'Preencha todos os campos obrigatórios',
-            'password.confirmed' => 'As senhas não coincidem'
+            'password.confirmed' => 'As senhas não coincidem',
+            'documento.required_if' => 'O documento é obrigatório para administradores.'
         ]);
 
         if ($validated->fails()) {

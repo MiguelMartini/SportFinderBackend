@@ -66,6 +66,7 @@ class AuthController extends Controller
             $user->tokens()->delete();
 
             $response['token'] = $user->createToken('APIToken')->plainTextToken;
+             $response['id'] = $user->id;
             $response['email'] = $user->email;
 
             return response()->json([
@@ -79,5 +80,15 @@ class AuthController extends Controller
                 'message' => 'Credenciais inválidas'
             ], 400);
         }
+    }
+
+    public function logout(){
+        $user = Auth::user();
+        $user->tokens()->delete();
+
+        return response()->json([
+            'status' => 'Sucesso',
+            'message' => 'Logout realizado com sucesso'
+        ], 200);
     }
 }

@@ -8,11 +8,11 @@ use App\Http\Middleware\ValidToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('users', [UsersController::class, 'index']);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function(){
+
     // usuários
     Route::delete('users/{id}', [UsersController::class, 'destroy']); 
     Route::patch('users/edit/{id}', [UsersController::class, 'update']); 
@@ -30,4 +30,5 @@ Route::middleware(['auth:sanctum'])->group(function(){
         Route::patch('areas/edit/{id}', [AreasEsportivasController::class, 'update']);
         
     });
+    Route::post('logout', [AuthController::class, 'logout']);
 });
