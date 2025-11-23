@@ -59,7 +59,7 @@ class AreasEsportivasController extends Controller
             'nota' => 'sometimes|nullable|numeric',
 
             'rua' => 'required|string',
-            'numero' => 'required|string',
+            'numero' => 'sometimes|numeric',
             'bairro' => 'required|string',
             'cidade' => 'required|string',
             'estado' => 'required|string|max:2',
@@ -99,7 +99,7 @@ class AreasEsportivasController extends Controller
         }
         $imagemPath = null;
 
-        if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
+        // if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
             //     $file = $request->file('thumbnail');
             //     $fileName = time().'_'.$file->getClientOriginalName();
 
@@ -113,7 +113,7 @@ class AreasEsportivasController extends Controller
             // ]);
             // $path = $request->file('thumbnail')->store('imagens', 'public');
             // $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
-        }
+        // }
 
         return response()->json([
             'status' => 'Sucesso',
