@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
-
-    public function index (){
-        $users = User::all();
-        
-        return response()->json([
-            'data' => $users
-        ],200);
-    }
     public function show(string $id)
     {
         $user = Auth::user();
