@@ -67,6 +67,11 @@ class AreasEsportivasController extends Controller
             'complemento' => 'sometimes|nullable|string',
 
             'thumbnail' => 'nullable|image|max:2048',
+        ], [
+            '*.required' => 'Campo obrigatório',
+            'descricao.max' => 'Máximo de 500 caracteres',
+            'estado.max' => 'Máximo 2 caracteres',
+            'cep.max' => 'Máximo 20 caracteres'
         ]);
 
         if ($validator->fails()) {
@@ -180,7 +185,7 @@ class AreasEsportivasController extends Controller
 
             // Endereço
             'rua' => 'sometimes|string',
-            'numero' => 'sometimes|string',
+            'numero' => 'sometimes|numeric',
             'bairro' => 'sometimes|string',
             'cidade' => 'sometimes|string',
             'estado' => 'sometimes|string|max:2',
