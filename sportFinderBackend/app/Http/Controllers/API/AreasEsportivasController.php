@@ -12,7 +12,7 @@ class AreasEsportivasController extends Controller
 {
     public function indexAll()
     {
-        $areas = AreasEsportivas::with('imagens')->get();
+        $areas = AreasEsportivas::with(['imagens', 'endereco'])->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -21,10 +21,10 @@ class AreasEsportivasController extends Controller
     }
     public function index()
     {
-        $user = Auth::user();
-        $areas = AreasEsportivas::with('imagens')
-        ->where('id_administrador', $user->id)
-        ->get();
+         $user = Auth::user();
+        $areas = AreasEsportivas::with(['imagens', 'endereco'])
+            ->where('id_administrador', $user->id)
+            ->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -56,12 +56,22 @@ class AreasEsportivasController extends Controller
             'id_administrador' => 'required|numeric',
             'titulo' => 'required|string',
             'descricao' => 'sometimes|nullable|string|max:500',
-            'endereco' => 'required|string',
-            'cidade' => 'required|string|max:80',
-            'cep' => 'required|string|max:20',
             'nota' => 'sometimes|nullable|numeric',
 
+            'rua' => 'required|string',
+            'numero' => 'sometimes|numeric',
+            'bairro' => 'required|string',
+            'cidade' => 'required|string',
+            'estado' => 'required|string|max:2',
+            'cep' => 'required|string|max:20',
+            'complemento' => 'sometimes|nullable|string',
+
             'thumbnail' => 'nullable|image|max:2048',
+        ], [
+            '*.required' => 'Campo obrigatório',
+            'descricao.max' => 'Máximo de 500 caracteres',
+            'estado.max' => 'Máximo 2 caracteres',
+            'cep.max' => 'Máximo 20 caracteres'
         ]);
 
         if ($validator->fails()) {
@@ -70,19 +80,31 @@ class AreasEsportivasController extends Controller
                 'message' => $validator->errors()
             ], 400);
         }
-        $data['id_administrador'] = $request->id_administrador;
-        $data['titulo'] = $request->titulo;
-        $data['descricao'] = $request->descricao;
-        $data['endereco'] = $request->endereco;
-        $data['cidade'] = $request->cidade;
-        $data['cep'] = $request->cep;
-        $data['nota'] = $request->nota;
 
-        $area = AreasEsportivas::create($data);
+         $area = AreasEsportivas::create([
+            'id_administrador' => $request->id_administrador,
+            'titulo' => $request->titulo,
+            'descricao' => $request->descricao,
+            'nota' => $request->nota
+        ]);
 
+        $area->endereco()->create([
+            'rua' => $request->rua,
+            'numero' => $request->numero,
+            'bairro' => $request->bairro,
+            'cidade' => $request->cidade,
+            'estado' => $request->estado,
+            'cep' => $request->cep,
+            'complemento' => $request->complemento,
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('imagens', 'public');
+            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
+        }
         $imagemPath = null;
 
-        if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
+        // if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
             //     $file = $request->file('thumbnail');
             //     $fileName = time().'_'.$file->getClientOriginalName();
 
@@ -94,15 +116,15 @@ class AreasEsportivasController extends Controller
             //     'thumbnail' => $imagemPath
 
             // ]);
-            $path = $request->file('thumbnail')->store('imagens', 'public');
-            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
-        }
+            // $path = $request->file('thumbnail')->store('imagens', 'public');
+            // $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
+        // }
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => 'Area esportiva criada com sucesso',
-            'area' => $area->load('imagens')
-        ]);
+            'message' => 'Área esportiva criada com sucesso',
+            'area' => $area->load(['endereco', 'imagens'])
+        ], 200);
     }
 
     /**
@@ -112,13 +134,20 @@ class AreasEsportivasController extends Controller
     {
 
         $user = Auth::user(); 
-        $area = AreasEsportivas::find($id);
+        $area = AreasEsportivas::with(['endereco', 'imagens'])->find($id);
 
         if(!$user){
             return response()->json([
                 'status' => 'Falha',
                 'message' => 'Usuário não autenticado'
             ], 401);
+        }
+
+        if (!$area) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Área Esportiva não encontrada'
+            ], 404);
         }
 
         if ((int)$user->id !== (int) $area->id_administrador) {
@@ -128,12 +157,6 @@ class AreasEsportivasController extends Controller
             ], 203);
         }
 
-        if (!$area) {
-            return response()->json([
-                'status' => 'Falha',
-                'message' => 'Área Esportiva não encontrada'
-            ], 404);
-        }
         return response()->json([
             'status' => 'Sucesso',
             'message' => $area
@@ -145,14 +168,29 @@ class AreasEsportivasController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $area = AreasEsportivas::with('endereco')->find($id);
+
+        if (!$area) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Área Esportiva não encontrada'
+            ], 404);
+        }
+
+        // Validação
         $validator = Validator::make($request->all(), [
-            'id_administrador' => 'required',
-            'titulo' => 'sometimes|string',
-            'descricao' => 'sometimes|nullable|string',
-            'endereco' => 'sometimes|nullable|string',
-            'cidade' => 'sometimes|nullable|string',
-            'cep' => 'sometimes|nullable|string',
-            'nota' => 'sometimes|nullable|numeric',
+            'titulo' => 'sometimes|string|max:255',
+            'descricao' => 'sometimes|nullable|string|max:500',
+            'nota' => 'sometimes|nullable|numeric|between:0,5',
+
+            // Endereço
+            'rua' => 'sometimes|string',
+            'numero' => 'sometimes|numeric',
+            'bairro' => 'sometimes|string',
+            'cidade' => 'sometimes|string',
+            'estado' => 'sometimes|string|max:2',
+            'cep' => 'sometimes|string|max:20',
+            'complemento' => 'sometimes|nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -162,21 +200,20 @@ class AreasEsportivasController extends Controller
             ], 400);
         }
 
-        $area = AreasEsportivas::find($id);
+        // Atualizar a área esportiva
+        $area->update($request->only(['titulo', 'descricao', 'nota']));
 
-        if (!$area) {
-            return response()->json([
-                'status' => 'Falha',
-                'message' => 'Área Esportiva não encontrada'
-            ], 404);
+        // Atualizar endereço
+        if ($area->endereco) {
+            $area->endereco->update($request->only([
+                'rua', 'numero', 'bairro', 'cidade', 'estado', 'cep', 'complemento'
+            ]));
         }
 
-        $area->update($validator->validate());
-
         return response()->json([
-            'status' => 'Suceeso',
+            'status' => 'Sucesso',
             'message' => 'Área esportiva atualizada com sucesso',
-            'Area' => $area->titulo
+            'area' => $area->load('endereco')
         ], 200);
     }
 
@@ -195,6 +232,7 @@ class AreasEsportivasController extends Controller
         }
 
         $areas->delete();
+        
         return response()->json([
             'status' => 'Sucesso',
             'message' => 'Área Esportiva deletada com sucesso!',

@@ -10,9 +10,6 @@ class AreasEsportivas extends Model
         'id_administrador',
         'titulo',
         'descricao',
-        'endereco',
-        'cidade',
-        'cep',
         'nota'
     ];
 
@@ -24,5 +21,10 @@ class AreasEsportivas extends Model
     public function imagens()
     {
         return $this->hasMany(ImagensAreas::class, 'id_area');
+    }
+
+    public function endereco()
+    {
+        return $this->hasOne(Endereco::class, 'area_esportiva_id');
     }
 }
