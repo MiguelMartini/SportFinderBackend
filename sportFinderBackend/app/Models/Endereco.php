@@ -14,7 +14,9 @@ class Endereco extends Model
         'estado',
         'cep',
         'complemento',
-        'area_esportiva_id'
+        'area_esportiva_id',
+        'lat',
+        'lon'
     ];
     public function areaEsportiva()
     {
