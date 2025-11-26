@@ -30,7 +30,7 @@ class UsersController extends Controller
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => $user->only(["id","name", "email", "role", "documento"])
+            'message' => $user->only(["id","name", "email", "role", "documento", "city", "lon", "lat"])
         ], 200);
     }
 
