@@ -65,6 +65,8 @@ class AreasEsportivasController extends Controller
             'estado' => 'required|string|max:2',
             'cep' => 'required|string|max:20',
             'complemento' => 'sometimes|nullable|string',
+            'lon' => 'numeric',
+            'lat' => 'numeric',
 
             'thumbnail' => 'nullable|image|max:2048',
         ], [
@@ -96,6 +98,8 @@ class AreasEsportivasController extends Controller
             'estado' => $request->estado,
             'cep' => $request->cep,
             'complemento' => $request->complemento,
+            'lon' => $request->has('lon') ? (float) $request->lon : null,
+            'lat' => $request->has('lat') ? (float) $request->lat : null,
         ]);
 
         if ($request->hasFile('thumbnail')) {
