@@ -7,23 +7,47 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    private function getCoordinatesFromCity($city)
+{
+    $url = "https://nominatim.openstreetmap.org/search?city="
+        . urlencode($city)
+        . "&country=Brazil&format=json&limit=1";
+
+    $response = Http::withHeaders([
+        'User-Agent' => 'SeuApp/1.0'
+    ])->get($url);
+
+    $data = $response->json();
+
+    if (!$response->ok() || empty($data)) {
+        return null;
+    }
+
+    return [
+        'lat' => $data[0]['lat'],
+        'lon' => $data[0]['lon']
+    ];
+}
     public function register(Request $request)
     {
         $validated = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|unique:users,email',
             'password' => 'required|confirmed',
-            'role' => 'sometimes'
+            'role' => 'sometimes',
+            'city' => 'required|string'
         ], [
             'name.required' => 'Campo de nome obrigatório',
             'email.unique' => 'Este endereço de E-mail já foi cadastrado',
             'email.required' => 'Campo de e-mail obrigatório',
             'password.confirmed' => 'As senhas não correspondem',
-            'password.required' => 'Campo de senha é obrigatório'
+            'password.required' => 'Campo de senha é obrigatório',
+            'city.required' => 'Campo cidade deve ser preenchido'
         ]);
 
         if ($validated->fails()) {
@@ -35,6 +59,17 @@ class AuthController extends Controller
 
         $data = $validated->validated();
         $data['role'] = $data['role'] ?? 'usuario';
+
+        $coords = $this->getCoordinatesFromCity($data['city']);
+        if (!$coords) {
+                return response()->json([
+                    'status' => 'Falha',
+                    'message' => 'Cidade não encontrada no Nominatim'
+                ], 400);
+            }
+            // Salvar lat/lon junto do usuário
+         $data['lat'] = $coords['lat'];
+         $data['lon'] = $coords['lon'];
 
         User::create($data);
 
