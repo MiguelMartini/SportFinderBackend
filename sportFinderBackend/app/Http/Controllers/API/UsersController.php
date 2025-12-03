@@ -30,7 +30,7 @@ class UsersController extends Controller
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => $user->only(["id","name", "email", "role", "documento", "city", "lon", "lat"])
+            'message' => $user->only(["id","name", "email", "phone", "role", "documento", "city", "lon", "lat"])
         ], 200);
     }
 
@@ -47,11 +47,13 @@ class UsersController extends Controller
 
         $validated = Validator::make($request->all(), [
             'name' => 'sometimes',
-            'email' => 'sometimes',
+            'email' => 'sometimes|email',
             'password' => 'required|confirmed',
+            'phone'  => 'sometimes|string',
             'role' => 'sometimes',
             'documento' => 'required_if:role,admin'
         ],[
+            'email.email' => 'O campo email deve ser um email válido.',
             'password.required' => 'Preencha todos os campos obrigatórios',
             'password.confirmed' => 'As senhas não coincidem',
             'documento.required_if' => 'O documento é obrigatório para administradores.'
