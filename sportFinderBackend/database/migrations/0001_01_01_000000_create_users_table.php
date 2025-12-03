@@ -15,9 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'usuario'])->default('usuario');
             $table->string('documento', 50)->nullable();
+            $table->decimal('lat', 10, 7);
+            $table->decimal('lon', 10, 7);
+            $table->string('city');
             $table->timestamps();
         });
     }

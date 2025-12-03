@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('estado', 2);
             $table->string('cep', 9);
             $table->string('complemento')->nullable();
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lon', 10, 7)->nullable();
 
             $table->foreignId('area_esportiva_id')
                 ->constrained('areas_esportivas')

@@ -12,7 +12,7 @@ class AreasEsportivasController extends Controller
 {
     public function indexAll()
     {
-        $areas = AreasEsportivas::with(['imagens', 'endereco'])->get();
+        $areas = AreasEsportivas::with(['endereco'])->get();
 
         return response()->json([
             'status' => 'Sucesso',
@@ -22,7 +22,7 @@ class AreasEsportivasController extends Controller
     public function index()
     {
          $user = Auth::user();
-        $areas = AreasEsportivas::with(['imagens', 'endereco'])
+        $areas = AreasEsportivas::with(['endereco'])
             ->where('id_administrador', $user->id)
             ->get();
 
@@ -56,7 +56,6 @@ class AreasEsportivasController extends Controller
             'id_administrador' => 'required|numeric',
             'titulo' => 'required|string',
             'descricao' => 'sometimes|nullable|string|max:500',
-            'nota' => 'sometimes|nullable|numeric',
 
             'rua' => 'required|string',
             'numero' => 'sometimes|numeric',
@@ -67,8 +66,6 @@ class AreasEsportivasController extends Controller
             'complemento' => 'sometimes|nullable|string',
             'lon' => 'numeric',
             'lat' => 'numeric',
-
-            'thumbnail' => 'nullable|image|max:2048',
         ], [
             '*.required' => 'Campo obrigatório',
             'descricao.max' => 'Máximo de 500 caracteres',
@@ -87,7 +84,6 @@ class AreasEsportivasController extends Controller
             'id_administrador' => $request->id_administrador,
             'titulo' => $request->titulo,
             'descricao' => $request->descricao,
-            'nota' => $request->nota
         ]);
 
         $area->endereco()->create([
@@ -102,32 +98,11 @@ class AreasEsportivasController extends Controller
             'lat' => $request->has('lat') ? (float) $request->lat : null,
         ]);
 
-        if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('imagens', 'public');
-            $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
-        }
-        $imagemPath = null;
-
-        // if ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid()) {
-            //     $file = $request->file('thumbnail');
-            //     $fileName = time().'_'.$file->getClientOriginalName();
-
-            //     $file->move(public_path('storage/imagens'), $fileName);
-
-            //     $imagemPath = "storage/imagens/".$fileName;
-
-            //     $area->imagens()->create([
-            //     'thumbnail' => $imagemPath
-
-            // ]);
-            // $path = $request->file('thumbnail')->store('imagens', 'public');
-            // $area->imagens()->create(['thumbnail' => 'storage/imagens/' . $path]);
-        // }
 
         return response()->json([
             'status' => 'Sucesso',
             'message' => 'Área esportiva criada com sucesso',
-            'area' => $area->load(['endereco', 'imagens'])
+            'area' => $area->load(['endereco'])
         ], 200);
     }
 
@@ -138,7 +113,7 @@ class AreasEsportivasController extends Controller
     {
 
         $user = Auth::user(); 
-        $area = AreasEsportivas::with(['endereco', 'imagens'])->find($id);
+        $area = AreasEsportivas::with(['endereco'])->find($id);
 
         if(!$user){
             return response()->json([
@@ -154,12 +129,12 @@ class AreasEsportivasController extends Controller
             ], 404);
         }
 
-        // if ((int)$user->id !== (int) $area->id_administrador) {
-        //     return response()->json([
-        //         'status' => 'Falha',
-        //         'message' => 'Sem permissão para esta operação.'
-        //     ], 203);
-        // }
+        if ((int)$user->id !== (int) $area->id_administrador) {
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Sem permissão para esta operação.'
+            ], 203);
+        }
 
         return response()->json([
             'status' => 'Sucesso',
@@ -185,7 +160,6 @@ class AreasEsportivasController extends Controller
         $validator = Validator::make($request->all(), [
             'titulo' => 'sometimes|string|max:255',
             'descricao' => 'sometimes|nullable|string|max:500',
-            'nota' => 'sometimes|nullable|numeric|between:0,5',
 
             // Endereço
             'rua' => 'sometimes|string',
@@ -205,7 +179,7 @@ class AreasEsportivasController extends Controller
         }
 
         // Atualizar a área esportiva
-        $area->update($request->only(['titulo', 'descricao', 'nota']));
+        $area->update($request->only(['titulo', 'descricao']));
 
         // Atualizar endereço
         if ($area->endereco) {
