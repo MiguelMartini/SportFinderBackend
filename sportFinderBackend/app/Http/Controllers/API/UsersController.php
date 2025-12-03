@@ -30,7 +30,7 @@ class UsersController extends Controller
 
         return response()->json([
             'status' => 'Sucesso',
-            'message' => $user->only(["id","name", "email", "phone", "role", "documento", "city", "lon", "lat"])
+            'message' => $user->only(["id","name", "email", "phone", "role", "instagram", "documento", "city", "lon", "lat"])
         ], 200);
     }
 
@@ -51,7 +51,8 @@ class UsersController extends Controller
             'password' => 'required|confirmed',
             'phone'  => 'sometimes|string',
             'role' => 'sometimes',
-            'documento' => 'required_if:role,admin'
+            'documento' => 'required_if:role,admin',
+             'instagram' => 'sometimes|string'
         ],[
             'email.email' => 'O campo email deve ser um email válido.',
             'password.required' => 'Preencha todos os campos obrigatórios',

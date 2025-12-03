@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('areas_esportivas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_administrador')->constrained('users')->onDelete('cascade');
-            $table->string('titulo', 255); // título da área
-            $table->string('descricao', 500)->nullable(); // descrição opcional
+            $table->string('titulo', 255);
+            $table->string('descricao', 500)->nullable(); 
             $table->timestamps();
         });
     }
