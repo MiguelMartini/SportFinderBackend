@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->string('instagram')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'usuario'])->default('usuario');
             $table->string('documento', 50)->nullable();
