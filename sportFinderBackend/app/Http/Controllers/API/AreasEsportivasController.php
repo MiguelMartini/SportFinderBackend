@@ -154,12 +154,12 @@ class AreasEsportivasController extends Controller
             ], 404);
         }
 
-        if ((int)$user->id !== (int) $area->id_administrador) {
-            return response()->json([
-                'status' => 'Falha',
-                'message' => 'Sem permissão para esta operação.'
-            ], 203);
-        }
+        // if ((int)$user->id !== (int) $area->id_administrador) {
+        //     return response()->json([
+        //         'status' => 'Falha',
+        //         'message' => 'Sem permissão para esta operação.'
+        //     ], 203);
+        // }
 
         return response()->json([
             'status' => 'Sucesso',
