@@ -28,7 +28,16 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 - Limites: Entregar o projeto até o fim da disciplina; Rodar no navegador; Sem custos de serviços;
 - Suposições: internet no laboratório; navegador atualizado; acesso ao GitHub; 10 min para teste rápido.
 
-## 5
+## 5 Diagramas
+- Diagrama Contexto nível 1
+<img width="722" height="522" alt="DiagramaC4" src="https://github.com/user-attachments/assets/1efb1ebd-8a00-434c-a09b-98bc7d953472" />
+---------
+- Diagrama Container/Visão Lógica
+<img width="1102" height="252" alt="DiagramaC4_2" src="https://github.com/user-attachments/assets/5377fb3c-300b-400a-ad61-4eaeef2cca47" />
+---------
+- Diagrama Entity-RelationShip Diagram
+<img width="1132" height="312" alt="DiagramaERDpng" src="https://github.com/user-attachments/assets/d7655f62-7e5e-4e6d-a687-2b1825321778" />
+
 ## 6. Fluxos
 **Fluxo administrador**
 
@@ -41,8 +50,8 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 **Fluxo Usuário**
 1) O usuário Comum acessa o sistema
 2) O usuário realiza o cadastro/login no sistema
-3) O usuário seleciona a cidade ou usa filtros de pesquisa
-4) Sistema mostra no mapa as áreas esportivas de acordo com as preferências do usuário
+3) O usuário seleciona a cidade
+4) Sistema mostra no mapa as áreas esportivas
 5) O usuário pode selecionar uma área esportiva e visualizar informações, como contato, localidade e características
 
 ## 🎨 7. Esboços de tela
@@ -51,27 +60,31 @@ O sistema é uma aplicação web destinada aos cadastros de Áreas esportivas, p
 
 ## 🔧 8. Tecnologias 
 ### 8.1 Front-End
-**HTML/Tailwinds/JavaScript/React.JS**
+**HTML/Tailwinds/TypeScript/React.TS**
 ### 8.2 Back-End
-**PHP/Laravel/Inertia/MYSQL**
+**PHP/Laravel/MYSQL**
 
 ## 🎲 9 - Plano de Dados
 ### 9.1 Entidades
 - Usuários: Pessoa que utiliza o sistema (usuário comum/administrador), autentica-se e pode cadastrar ou ver áreas esportivas.
 - Áreas Esportivas: Locais na cidade com áreas esportivas.
-- Comentários: Comentários de usuários comuns nas áreas esportivas.
-- Imagens área: Imagens contidas nas áreas esportivas.
+- Endereços: Relacionados ao usuário
 
 ### 9.2 Campos por entidade
 Usuário
 | Campo      | Tipo         | Obrigatório | Descrição                        |
 |------------|--------------|-------------|----------------------------------|
 | id         | INT (PK)     | sim         | Identificador único              |
-| nome       | VARCHAR(255) | sim         | Nome do usuário                  |
+| name       | VARCHAR(255) | sim         | Nome do usuário                  |
 | email      | VARCHAR(255) | sim (único) | E-mail do usuário                |
-| senha      | VARCHAR(255) | sim         | Hash da senha                    |
-| perfil     | TINYINT      | sim         | 0 = comum, 1 = admin             |
-| documento  | VARCHAR(50)  | não         | CPF ou CNPJ                      |
+| password   | VARCHAR(255) | sim         | Hash da senha                    |
+| phone      | VARCHAR(255) | sim         |                                  |
+| role       | TINYINT      | sim         | 0 = comum, 1 = admin             |
+| instagram  | VARCHAR(255) | não         | Para divulgação e confiabilidade |
+| documento  | VARCHAR(255) | não         | 0 = comum, 1 = admin             |
+| city       | VARCHAR(50)  | sim         | Ponto de partida mapa            |
+| lat        | VARCHAR(50)  | sim         | Ponto de partida mapa            |
+| lon        | VARCHAR(50)  | sim         | Ponto de partida mapa            |
 | created_at | DATETIME     | sim         | Data de criação (default NOW)    |
 | updated_at | DATETIME     | sim         | Última atualização (default NOW) |
 
@@ -90,72 +103,66 @@ Usuário
 | created_at      | DATETIME     | sim         | Data de criação (default NOW)          |
 | updated_at      | DATETIME     | sim         | Última atualização (default NOW)       |
 
-
-Comentários
-| Campo      | Tipo         | Obrigatório | Descrição                             |
-|------------|--------------|-------------|---------------------------------------|
-| id         | INT (PK)     | sim         | Identificador do comentário            |
-| id_usuario | INT (FK)     | sim         | Relaciona-se a usuarios.id             |
-| id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
-| titulo     | VARCHAR(255) | não         | Título do comentário                   |
-| texto      | VARCHAR(500) | não         | Texto do comentário                    |
-| nota       | TINYINT      | não         | Avaliação atribuída                    |
-| created_at | DATETIME     | sim         | Data de criação (default NOW)          |
-| updated_at | DATETIME     | sim         | Última atualização (default NOW)       |
-
-Imagens das áreas
+Endereços
 | Campo      | Tipo         | Obrigatório | Descrição                             |
 |------------|--------------|-------------|---------------------------------------|
 | id         | INT (PK)     | sim         | Identificador da imagem                |
-| id_area    | INT (FK)     | sim         | Relaciona-se a areas_esportivas.id     |
-| caminho    | VARCHAR(500) | sim         | Caminho/URL da imagem                  |
+| rua        | VARCHAR(255)     | sim     | Relaciona-se a areas_esportivas.id     |
+| numero     | VARCHAR(255) | sim         |                                        |
+| bairro     | VARCHAR(255) | sim         |                                        |
+| cidade     | VARCHAR(255) | sim         |                                        |
+| estado     | VARCHAR(2) | sim           |                                        |
+| cep        | VARCHAR(20) | sim          |                                        |
+| complemento| VARCHAR(255) | sim         |                                        |
+| area_esportiva_id | VARCHAR(255) | sim | Relaciona-se a areas_esportivas.id      |
+| lat        | 	decimal(10,7)| sim        |                                        |
+| lat        | 	decimal(10,7)| sim        |                                        |
 | created_at | DATETIME     | sim         | Data de criação (default NOW)          |
 | updated_at | DATETIME     | sim         | Última atualização (default NOW)       |
 
 ## 9.4 Modelagem banco de dados MYSQL
 ```
-CREATE TABLE usuarios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
-    perfil SMALLINT NOT NULL, -- 'comum = 0' ou 'admin = 1'
-    documento VARCHAR(50), 
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
 
-CREATE TABLE areas_esportivas (
-    id SERIAL PRIMARY KEY,
-    id_administrador INT NOT NULL REFERENCES usuarios(id),
-    titulo VARCHAR(255) NOT NULL,
-    descricao VARCHAR(500),
-    endereco VARCHAR(255),
-    cidade VARCHAR(80),
-    cep VARCHAR(20),
-    nota SMALLINT, -- de 0 a 5
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
+CREATE TABLE `areas_esportivas` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_administrador` bigint(20) UNSIGNED NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` varchar(500) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+)
 
-CREATE TABLE comentarios (
-    id SERIAL PRIMARY KEY,
-    id_usuario INT NOT NULL REFERENCES usuarios(id),
-    id_area INT NOT NULL REFERENCES areas_esportivas(id),
-    titulo VARCHAR(255),
-    texto VARCHAR(500),
-    nota SMALLINT,
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
+CREATE TABLE `enderecos` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `rua` varchar(255) NOT NULL,
+  `numero` varchar(255) DEFAULT NULL,
+  `bairro` varchar(255) NOT NULL,
+  `cidade` varchar(255) NOT NULL,
+  `estado` varchar(2) NOT NULL,
+  `cep` varchar(9) NOT NULL,
+  `complemento` varchar(255) DEFAULT NULL,
+  `lat` decimal(10,7) DEFAULT NULL,
+  `lon` decimal(10,7) DEFAULT NULL,
+  `area_esportiva_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+)
 
-CREATE TABLE imagens_area (
-    id SERIAL PRIMARY KEY,
-    id_area INT NOT NULL REFERENCES areas_esportivas(id),
-    caminho VARCHAR(500) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
+CREATE TABLE `users` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `instagram` varchar(255) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','usuario') NOT NULL DEFAULT 'usuario',
+  `documento` varchar(50) DEFAULT NULL,
+  `lat` decimal(10,7) NOT NULL,
+  `lon` decimal(10,7) NOT NULL,
+  `city` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+)
 
 
 -- Inserindo usuários
