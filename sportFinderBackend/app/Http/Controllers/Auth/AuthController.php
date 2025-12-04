@@ -6,33 +6,32 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     private function getCoordinatesFromCity($city)
-{
-    $url = "https://nominatim.openstreetmap.org/search?city="
-        . urlencode($city)
-        . "&country=Brazil&format=json&limit=1";
+    {
+        $url = "https://nominatim.openstreetmap.org/search?city="
+            . urlencode($city)
+            . "&country=Brazil&format=json&limit=1";
 
-    $response = Http::withHeaders([
-        'User-Agent' => 'SeuApp/1.0'
-    ])->get($url);
+        $response = Http::withHeaders([
+            'User-Agent' => 'SeuApp/1.0'
+        ])->get($url);
 
-    $data = $response->json();
+        $data = $response->json();
 
-    if (!$response->ok() || empty($data)) {
-        return null;
+        if (!$response->ok() || empty($data)) {
+            return null;
+        }
+
+        return [
+            'lat' => $data[0]['lat'],
+            'lon' => $data[0]['lon']
+        ];
     }
-
-    return [
-        'lat' => $data[0]['lat'],
-        'lon' => $data[0]['lon']
-    ];
-}
     public function register(Request $request)
     {
         $validated = Validator::make($request->all(), [
@@ -62,14 +61,14 @@ class AuthController extends Controller
 
         $coords = $this->getCoordinatesFromCity($data['city']);
         if (!$coords) {
-                return response()->json([
-                    'status' => 'Falha',
-                    'message' => 'Cidade não encontrada no Nominatim'
-                ], 400);
-            }
-            // Salvar lat/lon junto do usuário
-         $data['lat'] = $coords['lat'];
-         $data['lon'] = $coords['lon'];
+            return response()->json([
+                'status' => 'Falha',
+                'message' => 'Cidade não encontrada no Nominatim'
+            ], 400);
+        }
+        // Salvar lat/lon junto do usuário
+        $data['lat'] = $coords['lat'];
+        $data['lon'] = $coords['lon'];
 
         User::create($data);
 
