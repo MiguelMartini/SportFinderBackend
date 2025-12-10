@@ -72,13 +72,14 @@ class UsersController extends Controller
             'name' => 'sometimes',
             'email' => 'sometimes|email',
             'password' => 'required|confirmed',
-            'phone'  => 'sometimes|string',
+            'phone'  => 'required_if:role,admin|nullable|string',
             'role' => 'sometimes',
             'city' => 'sometimes|string',
             'documento' => 'required_if:role,admin',
-            'instagram' => 'sometimes|string'
+            'instagram' => 'required_if:role,admin|nullable|string'
         ], [
             'email.email' => 'O campo email deve ser um email válido.',
+            'password.required' => 'O campo de senha deve ser preenchido',
             'password.confirmed' => 'As senhas não coincidem',
             'documento.required_if' => 'O documento é obrigatório para administradores.'
         ]);

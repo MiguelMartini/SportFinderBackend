@@ -113,14 +113,15 @@ class AreasEsportivasController extends Controller
     {
 
         $user = Auth::user(); 
-        $area = AreasEsportivas::with(['endereco'])->find($id);
 
-        if(!$user){
-            return response()->json([
-                'status' => 'Falha',
-                'message' => 'Usuário não autenticado'
-            ], 401);
-        }
+        
+    if (!$user) {
+        return response()->json([
+            'status' => 'Falha',
+            'message' => 'Usuário não autenticado'
+        ], 401);
+    }
+        $area = AreasEsportivas::with(['endereco', 'usuario:id,email,phone,instagram'])->find($id);
 
         if (!$area) {
             return response()->json([
