@@ -2,7 +2,7 @@ FROM composer:2.7 as builder
 
 WORKDIR /app
 
-# Instalar extensões PHP necessárias para rodar o artisan na fase de build
+# Instalar extensões para o build
 RUN apk add --no-cache \
     libpng-dev \
     libzip-dev \
@@ -21,14 +21,12 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 COPY . .
 
-# Não rode cache aqui — só na imagem final
+# --- FASE FINAL ---
 
 FROM php:8.2-fpm-alpine
 
+# Removi o 'nginx' e o 'git' daqui pois não vamos usar para rodar o artisan serve
 RUN apk add --no-cache \
-    git \
-    mysql-client \
-    nginx \
     libpng-dev \
     libzip-dev \
     icu-dev \
@@ -47,11 +45,14 @@ COPY --from=builder /app /var/www/html
 RUN chown -R www-data:www-data /var/www/html/storage \
     /var/www/html/bootstrap/cache
 
-# Agora sim
+# ATENÇÃO: Removi o 'config:cache' daqui.
+# Motivo: As variáveis de ambiente do Render só entram DEPOIS que o Docker é construído.
+# Se você cachear aqui, o Laravel vai salvar senhas em branco e não vai conectar no banco.
 RUN php artisan package:discover
-RUN php artisan config:cache
 RUN php artisan route:cache
 
-EXPOSE 9000
+# Expomos a porta 8000 (Padrão do artisan serve)
+EXPOSE 8000
 
-CMD ["php-fpm"]
+# O comando mágico que resolve o problema de conexão
+CMD php artisan serve --host=0.0.0.0 --port=8000
