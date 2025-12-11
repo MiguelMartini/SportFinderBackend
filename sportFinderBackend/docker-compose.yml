@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+    # ----------------------------------------------------
+    # SERVICE 1: APLICAÇÃO (PHP-FPM)
+    # Usa o Dockerfile que você criou.
+    # ----------------------------------------------------
+    app:
+        container_name: laravel-api-app
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # Monta o volume para o código para que as mudanças locais se reflitam
+        # IMPORTANTE: No estágio de produção (STAGE 2 do Dockerfile), o código
+        # já é copiado. Este volume serve para o desenvolvimento local.
+        volumes:
+            - ./:/var/www/html
+        restart: always
+        # O FPM usa a porta 9000 internamente
+        expose:
+            - 9000
+        environment:
+            # Variáveis de ambiente padrão para o Laravel
+            APP_ENV: local
+            APP_DEBUG: true
+            # Configuração do banco de dados (deve corresponder ao serviço 'db')
+            DB_CONNECTION: mysql
+            DB_HOST: db
+            DB_PORT: 3306
+            DB_DATABASE: sportfinderbackend
+            DB_USERNAME: root
+            DB_PASSWORD: root
+        networks:
+            - laravel-network
+        # Define o usuário para o artisan/composer (boa prática)
+        user: www-data
+
+    # ----------------------------------------------------
+    # SERVICE 2: WEBSERVER (NGINX)
+    # Atua como proxy, enviando requisições PHP para o PHP-FPM (app:9000).
+    # ----------------------------------------------------
+    web:
+        container_name: laravel-api-nginx
+        image: nginx:alpine
+        # Mapeia a porta 80 do container para a porta 8080 na sua máquina local
+        ports:
+            - "8080:80"
+        volumes:
+            # Mapeia o código da aplicação
+            - ./:/var/www/html
+            # Mapeia o arquivo de configuração do Nginx (CRUCIAL)
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        restart: always
+        depends_on:
+            - app
+        networks:
+            - laravel-network
+
+    # ----------------------------------------------------
+    # SERVICE 3: BANCO DE DADOS (MYSQL)
+    # ----------------------------------------------------
+    db:
+        container_name: laravel-api-mysql
+        image: mysql:8.0
+        # Mapeia a porta para que você possa acessar de um cliente externo (ex: DBeaver)
+        ports:
+            - "3307:3306"
+        environment:
+            # Variáveis que o MySQL usa para configurar o banco inicial
+            MYSQL_DATABASE: sportfinderbackend
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            # Persistência de dados: mantém os dados do banco mesmo se o container for removido
+            - dbdata:/var/lib/mysql
+        networks:
+            - laravel-network
+
+# ----------------------------------------------------
+# VOLUMES E NETWORKS
+# ----------------------------------------------------
+volumes:
+    dbdata: # Volume nomeado para persistir os dados do MySQL
+
+networks:
+    laravel-network:
+        driver: bridge # Rede interna para os containers se comunicarem
