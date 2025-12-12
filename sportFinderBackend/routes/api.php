@@ -1,17 +1,16 @@
 <?php
 
 use App\Http\Controllers\API\AreasEsportivasController;
-use App\Http\Controllers\API\ImagensAreasController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Middleware\ValidToken;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
+Route::middleware('throttle:api-public')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+});
 
-Route::middleware(['auth:sanctum'])->group(function(){
+Route::middleware(['auth:sanctum', 'throttle:api-auth'])->group(function(){
     Route::get('me', [AuthController::class, 'me']);
 
     // usuários
@@ -23,7 +22,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::get('areas', [AreasEsportivasController::class, 'indexAll']);
     Route::get('areas/{id}', [AreasEsportivasController::class, 'show']);
 
-    Route::middleware(['role:admin'])->group(function(){
+    Route::middleware(['role:admin', 'throttle:api-auth'])->group(function(){
         Route::get('areasadmin', [AreasEsportivasController::class, 'index']);
         Route::post('areas', [AreasEsportivasController::class, 'store']);
         Route::delete('areas/{id}', [AreasEsportivasController::class, 'destroy']);
