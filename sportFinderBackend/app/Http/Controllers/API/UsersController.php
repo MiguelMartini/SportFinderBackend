@@ -4,35 +4,41 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\GeoLocationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
+     protected $geo;
 
-    private function getCoordinatesFromCity($city)
+    public function __construct(GeoLocationService $geo)
     {
-        $url = "https://nominatim.openstreetmap.org/search?city="
-            . urlencode($city)
-            . "&country=Brazil&format=json&limit=1";
-
-        $response = Http::withHeaders([
-            'User-Agent' => 'SeuApp/1.0'
-        ])->get($url);
-
-        $data = $response->json();
-
-        if (!$response->ok() || empty($data)) {
-            return null;
-        }
-
-        return [
-            'lat' => $data[0]['lat'],
-            'lon' => $data[0]['lon']
-        ];
+        $this->geo = $geo;
     }
+
+    // private function getCoordinatesFromCity($city)
+    // {
+    //     $url = "https://nominatim.openstreetmap.org/search?city="
+    //         . urlencode($city)
+    //         . "&country=Brazil&format=json&limit=1";
+
+    //     $response = Http::withHeaders([
+    //         'User-Agent' => 'SeuApp/1.0'
+    //     ])->get($url);
+
+    //     $data = $response->json();
+
+    //     if (!$response->ok() || empty($data)) {
+    //         return null;
+    //     }
+
+    //     return [
+    //         'lat' => $data[0]['lat'],
+    //         'lon' => $data[0]['lon']
+    //     ];
+    // }
     public function show(string $id)
     {
         $user = Auth::user();
@@ -103,7 +109,7 @@ class UsersController extends Controller
         }
 
         if (isset($data['city'])) {
-            $coords = $this->getCoordinatesFromCity($data['city']);
+            $coords = $this->geo->getCoordinates($data['city']);
 
             if (!$coords) {
                 return response()->json([
