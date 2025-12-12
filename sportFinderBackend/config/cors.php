@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['sport-finder-front.vercel.app'],
+    'allowed_origins' => ['https://sport-finder-front.vercel.app'],
 
     'allowed_origins_patterns' => [],
 
